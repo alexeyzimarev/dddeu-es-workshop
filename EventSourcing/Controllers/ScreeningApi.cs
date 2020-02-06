@@ -26,10 +26,7 @@ namespace EventSourcing.Controllers
                 TheaterId   = "vue1"
             };
 
-            await _appService.Handle(
-                command.ScreeningId,
-                screening => screening.Schedule(id, new Movie("thor", 120), new Theater("vue"), DateTimeOffset.Now)
-            );
+            await _appService.Handle(command);
 
             return "done!";
         }
@@ -41,11 +38,14 @@ namespace EventSourcing.Controllers
             var command = new ReserveSeat
             {
                 ScreeningId = id,
-                Row = row,
-                Seat = seat
+                Row         = row,
+                Seat        = seat
             };
 
-            await _appService.Handle(id, screening => screening.ReserveSeat(row, seat));
+            await _appService.Handle(
+                command,
+                this.User.Identity.Name
+            );
 
             return "done";
         }

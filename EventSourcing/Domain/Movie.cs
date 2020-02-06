@@ -2,7 +2,7 @@ using System;
 
 namespace EventSourcing.Domain
 {
-    public struct Movie
+    public struct Movie : IEquatable<Movie>
     {
         public Movie(string id, int durationInMinutes)
         {
@@ -13,7 +13,13 @@ namespace EventSourcing.Domain
             DurationInMinutes = durationInMinutes;
         }
 
-        public string Id { get; private set; }
-        public int DurationInMinutes { get; private set; }
+        public string Id { get; }
+        public int DurationInMinutes { get; }
+
+        public bool Equals(Movie other) => Id == other.Id && DurationInMinutes == other.DurationInMinutes;
+
+        public override bool Equals(object obj) => obj is Movie other && Equals(other);
+
+        public override int GetHashCode() => HashCode.Combine(Id, DurationInMinutes);
     }
 }

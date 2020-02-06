@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using EventSourcing.Infrastructure;
 using static EventSourcing.Domain.ScreeningEvents;
 
@@ -13,7 +14,7 @@ namespace EventSourcing.Domain
         {
             if (Version >= 0)
                 throw new InvalidOperationException("Can't do that, go away");
-            
+
             var evt = new V1.ScreeningScheduled
             {
                 ScreeningId       = screeningId,
@@ -27,7 +28,8 @@ namespace EventSourcing.Domain
 
         protected override bool IsEverythingStillOk()
         {
-            return !string.IsNullOrWhiteSpace(State.Id);
+            return !string.IsNullOrWhiteSpace(State.Id)
+                && State.Seats.Distinct().Count() != State.Seats.Count;
         }
 
         public override string GetId() => State.Id;
@@ -36,23 +38,35 @@ namespace EventSourcing.Domain
         {
             State = evt switch
             {
-                V1.ScreeningScheduled e => State.With(x => x.Id = e.ScreeningId),
+                V1.ScreeningScheduled e => State.With(x => { x.Id = e.ScreeningId; }),
+                V1.SeatReserved e       => State.When(e),
                 _                       => State
             };
         }
 
         class ScreeningState
         {
-            public string Id { get; set; }
+            public string Id    { get; set; }
+            public Movie  Movie { get; set; }
+
+            public ScreeningState When(V1.SeatReserved evt)
+            {
+                Seats.Add((evt.Row, evt.Seat));
+                return this;
+            }
+
+            public List<(int Row, int Seat)> Seats { get; } = new List<(int Row, int Seat)>();
         }
 
-        public void ReserveSeat(in int row, in int seat)
+        public void ReserveSeat(in int row, in int seat, string userId, DateTimeOffset when)
         {
             Apply(new V1.SeatReserved
             {
                 ScreeningId = State.Id,
-                Seat = seat,
-                Row = row,
+                Seat        = seat,
+                Row         = row,
+                ReservedBy  = userId,
+                ReservedAt  = when
             });
         }
     }

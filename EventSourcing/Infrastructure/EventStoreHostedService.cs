@@ -8,10 +8,23 @@ namespace EventSourcing.Infrastructure
     public class EventStoreHostedService : IHostedService
     {
         readonly IEventStoreConnection _connection;
+        readonly IProjection[] _projections;
+        EventStoreSubscription _subscription;
 
-        public EventStoreHostedService(IEventStoreConnection connection) => _connection = connection;
+        public EventStoreHostedService(IEventStoreConnection connection,
+            params IProjection[] projections)
+        {
+            _connection = connection;
+            _projections = projections;
+        }
 
-        public Task StartAsync(CancellationToken cancellationToken) => _connection.ConnectAsync();
+        public async Task StartAsync(CancellationToken cancellationToken)
+        {
+            await _connection.ConnectAsync();
+            
+            _subscription = new EventStoreSubscription(_connection, _projections);
+            _subscription.Start();
+        }
 
         public Task StopAsync(CancellationToken cancellationToken)
         {

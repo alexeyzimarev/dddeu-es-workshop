@@ -32,6 +32,8 @@ namespace EventSourcing.Domain
                 public string ScreeningId { get; set; }
                 public int Row { get; set; }
                 public int Seat { get; set; }
+                public string ReservedBy { get; set; }
+                public DateTimeOffset ReservedAt { get; set; }
             }
             
             public class SeatReleased
