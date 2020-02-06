@@ -1,4 +1,3 @@
-using System;
 using System.Threading.Tasks;
 using EventSourcing.Domain;
 using EventSourcing.Infrastructure;
@@ -10,25 +9,29 @@ namespace EventSourcing.Application
     {
         readonly GetUtcNow _getUtcNow;
         readonly GetMovieDuration _getMovieDuration;
+        readonly GetTheaterCapacity _getTheaterCapacity;
 
         public ScreeningAppService(IAggregateStore aggregateStore,
             GetUtcNow getUtcNow,
-            GetMovieDuration getMovieDuration) : base(aggregateStore)
+            GetMovieDuration getMovieDuration,
+            GetTheaterCapacity getTheaterCapacity) : base(aggregateStore)
         {
             _getUtcNow = getUtcNow;
             _getMovieDuration = getMovieDuration;
+            _getTheaterCapacity = getTheaterCapacity;
         }
 
         public async Task Handle(ScheduleScreening command)
         {
             var duration = await _getMovieDuration(command.MovieId);
+            var theater = await Theater.FromId(command.TheaterId, _getTheaterCapacity);
             
             await Handle(
                 command.ScreeningId,
                 screening => screening.Schedule(
                     command.ScreeningId,
                     new Movie(command.MovieId, duration),
-                    new Theater(command.TheaterId),
+                    theater,
                     _getUtcNow()
                 )
             );

@@ -10,7 +10,11 @@ namespace EventSourcing.Domain
     {
         ScreeningState State { get; set; } = new ScreeningState();
 
-        public void Schedule(string screeningId, Movie movie, Theater theater, DateTimeOffset startsAt)
+        public void Schedule(
+            string screeningId,
+            Movie movie, Theater theater,
+            DateTimeOffset startsAt
+        )
         {
             if (Version >= 0)
                 throw new InvalidOperationException("Can't do that, go away");
@@ -20,6 +24,7 @@ namespace EventSourcing.Domain
                 ScreeningId       = screeningId,
                 MovieId           = movie.Id,
                 TheaterId         = theater.Id,
+                TheaterCapacity   = theater.Capacity,
                 DurationInMinutes = movie.DurationInMinutes,
                 StartsAt          = startsAt
             };
@@ -29,7 +34,8 @@ namespace EventSourcing.Domain
         protected override bool IsEverythingStillOk()
         {
             return !string.IsNullOrWhiteSpace(State.Id)
-                && State.Seats.Distinct().Count() != State.Seats.Count;
+                && State.Seats.Distinct().Count() == State.Seats.Count
+                && State.Capacity                 >= 0;
         }
 
         public override string GetId() => State.Id;
@@ -38,20 +44,26 @@ namespace EventSourcing.Domain
         {
             State = evt switch
             {
-                V1.ScreeningScheduled e => State.With(x => { x.Id = e.ScreeningId; }),
-                V1.SeatReserved e       => State.When(e),
-                _                       => State
+                V1.ScreeningScheduled e => State.With(x =>
+                {
+                    x.Id       = e.ScreeningId;
+                    x.Capacity = e.TheaterCapacity;
+                }),
+                V1.SeatReserved e => State.When(e),
+                _                 => State
             };
         }
 
         class ScreeningState
         {
-            public string Id    { get; set; }
-            public Movie  Movie { get; set; }
+            public string Id       { get; set; }
+            public Movie  Movie    { get; set; }
+            public int    Capacity { get; set; }
 
             public ScreeningState When(V1.SeatReserved evt)
             {
                 Seats.Add((evt.Row, evt.Seat));
+                Capacity--;
                 return this;
             }
 
@@ -65,6 +77,7 @@ namespace EventSourcing.Domain
                 ScreeningId = State.Id,
                 Seat        = seat,
                 Row         = row,
+                SeatsLeft   = State.Capacity - 1,
                 ReservedBy  = userId,
                 ReservedAt  = when
             });

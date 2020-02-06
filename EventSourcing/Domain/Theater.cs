@@ -1,12 +1,20 @@
+using System.Threading.Tasks;
+
 namespace EventSourcing.Domain
 {
-    public struct Theater
+    public delegate Task<int> GetTheaterCapacity(string id);
+
+    public class Theater
     {
         public Theater(string id)
         {
             Id = id;
         }
 
-        public string Id { get; private set; }
+        public static async Task<Theater> FromId(string id, GetTheaterCapacity getTheaterCapacity)
+            => new Theater(id) {Capacity = await getTheaterCapacity(id)};
+
+        public string Id       { get; }
+        public int    Capacity { get; private set; }
     }
 }

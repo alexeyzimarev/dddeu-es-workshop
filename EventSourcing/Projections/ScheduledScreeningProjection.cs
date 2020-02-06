@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using EventSourcing.Infrastructure;
 using MongoDB.Driver;
 using static EventSourcing.Domain.ScreeningEvents.V1;
+using static MongoDB.Driver.Builders<EventSourcing.Projections.ScheduledScreenings>;
 
 namespace EventSourcing.Projections
 {
@@ -19,19 +20,28 @@ namespace EventSourcing.Projections
             => evt switch
             {
                 ScreeningScheduled e =>
-                _collection.InsertOneAsync(new ScheduledScreenings
-                {
-                    TheaterId = e.TheaterId,
-                    Screenings = new List<ScheduledScreenings.Screening>
-                    {
+                _collection.UpdateOneAsync(
+                    Filter.Eq(x => x.TheaterId, e.TheaterId),
+                    Update
+                        .Push(x => x.Screenings,
                         new ScheduledScreenings.Screening
                         {
+                            ScreeningId       = e.ScreeningId,
                             MovieId           = e.MovieId,
                             ScheduledAt       = e.StartsAt,
-                            DurationInMinutes = e.DurationInMinutes
+                            DurationInMinutes = e.DurationInMinutes,
+                            SeatsLeft         = e.TheaterCapacity
                         }
-                    }
-                }),
+                    ),
+                    new UpdateOptions {IsUpsert = true}
+                ),
+                SeatReserved e =>
+                _collection.UpdateOneAsync(
+                    Filter.ElemMatch(
+                        x => x.Screenings,
+                        screening => screening.ScreeningId == e.ScreeningId),
+                    Update.Set(x => x.Screenings[-1].SeatsLeft, e.SeatsLeft)
+                ),
                 _ => Task.CompletedTask
             };
     }

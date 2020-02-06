@@ -29,6 +29,9 @@ namespace EventSourcing.Infrastructure
 
         Task Project(EventStoreCatchUpSubscription subscription, ResolvedEvent re)
         {
+            if (re.Event.EventType.StartsWith("$"))
+                return Task.CompletedTask;
+            
             var data = re.Deserialize();
             return Task.WhenAll(_projections.Select(x => x.Project(data)));
         }

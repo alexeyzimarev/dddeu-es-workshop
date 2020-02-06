@@ -11,6 +11,7 @@ namespace EventSourcing.Domain
                 public string ScreeningId { get; set; }
                 public string MovieId { get; set; }
                 public string TheaterId { get; set; }
+                public int TheaterCapacity { get; set; }
                 public DateTimeOffset StartsAt { get; set; }
                 public int DurationInMinutes { get; set; }
 
@@ -32,6 +33,7 @@ namespace EventSourcing.Domain
                 public string ScreeningId { get; set; }
                 public int Row { get; set; }
                 public int Seat { get; set; }
+                public int SeatsLeft { get; set; }
                 public string ReservedBy { get; set; }
                 public DateTimeOffset ReservedAt { get; set; }
             }

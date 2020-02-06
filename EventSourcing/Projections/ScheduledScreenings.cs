@@ -13,6 +13,7 @@ namespace EventSourcing.Projections
         
         public class Screening
         {
+            public string ScreeningId { get; set; }
             public string MovieId { get; set; }
             public string MovieName { get; set; }
             public DateTimeOffset ScheduledAt { get; set; }
