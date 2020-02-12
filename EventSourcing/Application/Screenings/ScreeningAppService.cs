@@ -3,7 +3,7 @@ using EventSourcing.Domain;
 using EventSourcing.Infrastructure;
 using static EventSourcing.Application.ScreeningCommands.V1;
 
-namespace EventSourcing.Application
+namespace EventSourcing.Application.Screenings
 {
     public class ScreeningAppService : ApplicationService<Screening>
     {

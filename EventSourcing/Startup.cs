@@ -1,20 +1,16 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using EventSourcing.Application;
+using EventSourcing.Application.Screenings;
+using EventSourcing.Application.Screenings.Projections;
 using EventSourcing.Domain;
 using EventSourcing.Infrastructure;
-using EventSourcing.Projections;
 using EventStore.ClientAPI;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
 
 namespace EventSourcing

@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
-using EventSourcing.Application;
-using EventSourcing.Domain;
 using Microsoft.AspNetCore.Mvc;
 using static EventSourcing.Application.ScreeningCommands.V1;
 
-namespace EventSourcing.Controllers
+namespace EventSourcing.Application.Screenings
 {
     [ApiController]
     [Route("/screening")]

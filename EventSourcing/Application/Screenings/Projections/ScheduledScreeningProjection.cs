@@ -1,11 +1,10 @@
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using EventSourcing.Infrastructure;
 using MongoDB.Driver;
 using static EventSourcing.Domain.ScreeningEvents.V1;
-using static MongoDB.Driver.Builders<EventSourcing.Projections.ScheduledScreenings>;
+using static MongoDB.Driver.Builders<EventSourcing.Application.Screenings.Projections.ScheduledScreenings>;
 
-namespace EventSourcing.Projections
+namespace EventSourcing.Application.Screenings.Projections
 {
     public class ScheduledScreeningProjection : IProjection
     {

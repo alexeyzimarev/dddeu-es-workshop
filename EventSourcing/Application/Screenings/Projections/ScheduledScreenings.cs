@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace EventSourcing.Projections
+namespace EventSourcing.Application.Screenings.Projections
 {
     public class ScheduledScreenings
     {
